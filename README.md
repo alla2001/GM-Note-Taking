@@ -12,48 +12,59 @@ A GM can quickly record short events during a tabletop session, tag them, and fi
 - Filter notes by **tags** and **timestamp range**.
 - Enforces the brief: each note is capped at 400 characters (~2 sentences).
 - Simple HTML/CSS/JS frontend served by the same server.
-- Edge-case tests with Jest + Supertest + in-memory MongoDB — no external DB needed to run the tests.
+- Edge-case tests with Jest + Supertest + in-memory MongoDB.
 
 ---
 
 ## Requirements
 
-- **Node.js** 18+ (only requirement besides MongoDB).
-- **MongoDB** running locally on `mongodb://127.0.0.1:27017` for the app itself.
-  (Tests spin up their own in-memory Mongo and need no local install.)
+- **Node.js 18+** — that's it.
+  No need to install MongoDB. The default `npm start` runs the API against an in-memory MongoDB that's bundled as a dependency.
 
 ---
 
-## Setup
+## Run it
 
 ```bash
-# 1. Clone
-git clone <your-repo-url> gm-note-taking
-cd gm-note-taking
-
-# 2. Install dependencies
+git clone https://github.com/alla2001/GM-Note-Taking.git
+cd GM-Note-Taking
 npm install
-
-# 3. (Optional) create a .env file to override defaults
-cp .env.example .env
-
-# 4. Initialise the database (creates indexes + seeds 2 example notes)
-npm run init-db
-
-# 5. Start the server
 npm start
 ```
 
 Then open **http://localhost:3000** in your browser.
 
+The first `npm install` downloads a small MongoDB binary (~70 MB) the first time it runs, then caches it. Data lives in memory and resets when the server stops.
+
+### Optional: run against a real MongoDB
+
+If you have a local MongoDB and want persistent data:
+
+```bash
+npm run init-db   # creates indexes + seeds 2 example notes
+npm run start:mongo
+```
+
+This uses the connection string in `MONGO_URI` (default `mongodb://127.0.0.1:27017/gm_notes`).
+
+---
+
+## Run the tests
+
+```bash
+npm test
+```
+
+Tests use the same in-memory MongoDB — no setup needed.
+
 ---
 
 ## Environment variables
 
-| Variable    | Default                                  | Purpose                       |
-| ----------- | ---------------------------------------- | ----------------------------- |
-| `MONGO_URI` | `mongodb://127.0.0.1:27017/gm_notes`     | MongoDB connection string     |
-| `PORT`      | `3000`                                   | HTTP port for the Express app |
+| Variable    | Default                                  | Used by                  |
+| ----------- | ---------------------------------------- | ------------------------ |
+| `PORT`      | `3000`                                   | both modes               |
+| `MONGO_URI` | `mongodb://127.0.0.1:27017/gm_notes`     | `start:mongo` / `init-db`|
 
 ---
 
@@ -102,14 +113,15 @@ Returns `{ "status": "ok" }` — handy for smoke tests.
 ```
 .
 ├── app.js                # Express app factory (used by server + tests)
-├── server.js             # Entry point: connects to Mongo and starts the app
+├── server.js             # Real-MongoDB entry point (npm run start:mongo)
 ├── db.js                 # Mongoose connect/disconnect helpers
 ├── models/
 │   └── Note.js           # Mongoose schema + indexes
 ├── routes/
 │   └── notes.js          # REST endpoints
 ├── scripts/
-│   └── init-db.js        # DB init + seed script (npm run init-db)
+│   ├── dev-server.js     # In-memory MongoDB entry point (npm start)
+│   └── init-db.js        # DB init + seed for real MongoDB (npm run init-db)
 ├── public/
 │   ├── index.html        # Simple UI
 │   ├── style.css
@@ -123,15 +135,8 @@ Returns `{ "status": "ok" }` — handy for smoke tests.
 
 ---
 
-## Running the tests
+## Edge cases covered by tests
 
-```bash
-npm test
-```
-
-The tests use `mongodb-memory-server`, which downloads a MongoDB binary the first time it runs and then starts an in-memory instance — no local MongoDB needed.
-
-Covered edge cases include:
 - Missing / empty / oversized `content`
 - Invalid and non-existent IDs (GET / PUT / DELETE)
 - Tag normalisation (trim, lower-case, de-dup)
