@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GM Notes</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>GM Notes</h1>
+      <p class="subtitle">Quick notes for your tabletop session</p>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>New note</h2>
+        <form id="note-form">
+          <label>
+            Title
+            <input type="text" id="title" maxlength="120" placeholder="Optional title" />
+          </label>
+          <label>
+            Content <span class="hint">(max 2 sentences / 400 chars)</span>
+            <textarea id="content" required maxlength="400" placeholder="What just happened?"></textarea>
+          </label>
+          <label>
+            Tags <span class="hint">(comma separated)</span>
+            <input type="text" id="tags" placeholder="e.g. combat, goblin, session-1" />
+          </label>
+          <button type="submit">Save note</button>
+        </form>
+        <p id="form-msg" class="msg"></p>
+      </section>
+
+      <section class="card">
+        <h2>Filters</h2>
+        <form id="filter-form">
+          <label>
+            Tags
+            <input type="text" id="filter-tags" placeholder="goblin,cave" />
+          </label>
+          <label>
+            From
+            <input type="datetime-local" id="filter-from" />
+          </label>
+          <label>
+            To
+            <input type="datetime-local" id="filter-to" />
+          </label>
+          <div class="row">
+            <button type="submit">Apply</button>
+            <button type="button" id="clear-filters" class="secondary">Clear</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Notes</h2>
+        <ul id="notes-list" class="notes"></ul>
+        <p id="empty-msg" class="msg hidden">No notes yet.</p>
+      </section>
+    </main>
+
+    <script src="/script.js"></script>
+  </body>
+</html>
